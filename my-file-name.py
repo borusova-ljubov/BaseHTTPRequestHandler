@@ -19,8 +19,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         if self.path == "/healthcheck":
             self._send_response(200, {"status": "ok"})
 
+        elif self.path == "/endpoint-error":
+            self._send_response(200, {"status": "erRor"})
+
         elif self.path == "/crazy":
-            self._send_response(200, {"status": 15})
+            self._send_response(200, {"status": "yes"})
 
         elif self.path == "/time":
             now = datetime.utcnow().isoformat()
