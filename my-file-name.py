@@ -40,6 +40,15 @@ class RequestHandler(BaseHTTPRequestHandler):
             self._send_response(404, {"error": "not found"})
 
 
+        # 2. sum (сумма чисел)
+        elif path == "/sum":
+            try:
+                a = int(query.get("a", [0])[0])
+                b = int(query.get("b", [0])[0])
+                self._send_response(200, {"result": a + b})
+            except ValueError:
+                self._send_response(400, {"error": "invalid numbers"})    
+
     # POST endpoint
     def do_POST(self):
         if self.path == "/echo-body":
