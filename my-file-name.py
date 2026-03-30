@@ -49,7 +49,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             except ValueError:
                 self._send_response(400, {"error": "invalid numbers"})    
 
-
     # POST endpoint
     def do_POST(self):
         if self.path == "/echo-body":
