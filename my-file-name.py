@@ -22,23 +22,19 @@ class RequestHandler(BaseHTTPRequestHandler):
         path = parsed_url.path
         query = parse_qs(parsed_url.query)
 
-        if self.path == "/healthcheck":
+        if path == "/healthcheck":
             self._send_response(200, {"status": "ok"})
 
-        elif self.path == "/time":
+        elif path == "/time":
             now = datetime.utcnow().isoformat()
             self._send_response(200, {"current_time": now})
 
-        elif self.path == "/hello":
+        elif path == "/hello":
             self._send_response(200, "hello", content_type="text/plain")
 
         # 1. echo (возвращает query параметры)
         elif path == "/echo":
             self._send_response(200, {"query": query})
-
-        else:
-            self._send_response(404, {"error": "not found"})
-
 
         # 2. sum (сумма чисел)
         elif path == "/sum":
@@ -47,11 +43,40 @@ class RequestHandler(BaseHTTPRequestHandler):
                 b = int(query.get("b", [0])[0])
                 self._send_response(200, {"result": a + b})
             except ValueError:
-                self._send_response(400, {"error": "invalid numbers"})    
+                self._send_response(400, {"error": "invalid numbers"}) 
+
+        # 3. user (заглушка пользователя)
+        elif path == "/user":
+            user_id = query.get("id", [None])[0]
+            if user_id:
+                self._send_response(200, {
+                    "id": user_id,
+                    "name": "John Doe" })
+            else:
+                self._send_response(400, {"error": "id is required"})
+
+        # 4./headers — возвращает заголовки запроса
+        elif path == "/headers":
+            headers_dict = dict(self.headers)
+            self._send_response(200, {"headers": headers_dict})
+
+        # 5./status — возвращает заданный статус код
+        elif path == "/status":
+            try:
+                code = int(query.get("code", [200])[0])
+                self._send_response(code, {"status": code})
+            except ValueError:
+                self._send_response(400, {"error": "invalid status code"})
+
+        else:
+            self._send_response(404, {"error": "not found"})                   
 
     # POST endpoint
     def do_POST(self):
-        if self.path == "/echo-body":
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path
+
+        if path == "/echo-body":
             content_length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(content_length)
 
@@ -62,7 +87,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self._send_response(400, {"error": "invalid json"})
 
 
-def run(server_class=HTTPServer, handler_class=RequestHandler, port=8000):
+def run(server_class=HTTPServer, handler_class=RequestHandler, port=9990):
     server_address = ("", port)
     httpd = server_class(server_address, handler_class)
     print(f"Server running on port {port}")
@@ -70,7 +95,7 @@ def run(server_class=HTTPServer, handler_class=RequestHandler, port=8000):
 
 
 if __name__ == "__main__":
-    port = 8000
+    port = 9990
     if len(sys.argv) > 1:
         port = int(sys.argv[1])
 
