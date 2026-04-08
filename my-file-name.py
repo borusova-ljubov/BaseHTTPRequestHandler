@@ -48,10 +48,60 @@ class RequestHandler(BaseHTTPRequestHandler):
         # 3. user (заглушка пользователя)
         elif path == "/user":
             user_id = query.get("id", [None])[0]
+
             if user_id:
-                self._send_response(200, {
-                    "id": user_id,
-                    "name": "John Doe" })
+                response = {
+                    "parentA": {
+                        "info": "meta-info"
+                    },
+                    "families": [
+                        {
+                            "familyName": "Smith",
+                            "members": [
+                                {
+                                    "childrenA": {
+                                        "name": "Anna",
+                                        "age": 10
+                                    }
+                                },
+                                {
+                                    "childrenB": {
+                                        "name": "Bob",
+                                        "age": 11
+                                    }
+                                },
+                                {
+                                    "childrenZ": {
+                                        "name": "Mark",
+                                        "age": 12
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "familyName": "Johnson",
+                            "members": [
+                                {
+                                    "childrenA": {
+                                        "name": "Kate",
+                                        "age": 9
+                                    }
+                                },
+                                {
+                                    "childrenB": {
+                                        "name": "Tom",
+                                        "age": 13
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "parentC": {
+                        "info": "extra-info"
+                    }
+                }
+
+                self._send_response(200, response)
             else:
                 self._send_response(400, {"error": "id is required"})
 
