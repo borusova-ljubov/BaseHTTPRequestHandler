@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from datetime import datetime
 import json
 import sys
+import requests
 from urllib.parse import urlparse, parse_qs
 
 
@@ -118,8 +119,50 @@ class RequestHandler(BaseHTTPRequestHandler):
             except ValueError:
                 self._send_response(400, {"error": "invalid status code"})
 
+        # 6./weather
+        elif path == "/weather":
+            city = query.get("city", ["Belgrade"])[0]
+
+            # Пока просто маппинг (можно расширить)
+            if city.lower() == "belgrade":
+                lat, lon = 44.7872, 20.4573
+            elif city.lower() == "novi sad":
+                lat, lon = 45.2671, 19.8335
+            else:
+                self._send_response(400, {"error": "unknown city"})
+                return
+
+            try:
+                url = "https://api.open-meteo.com/v1/forecast"
+                params = {
+                    "latitude": lat,
+                    "longitude": lon,
+                    "current_weather": True
+                }
+
+                response = requests.get(url, params=params)
+                data = response.json()
+
+                weather = data.get("current_weather", {})
+
+                result = {
+                    "city": city,
+                    "temperature": weather.get("temperature"),
+                    "windspeed": weather.get("windspeed")
+                }
+
+                self._send_response(200, result)
+
+            except Exception as e:
+                self._send_response(500, {"error": str(e)})
+
         else:
-            self._send_response(404, {"error": "not found"})                   
+            self._send_response(404, {"error": "not found"})
+
+
+
+
+
 
     # POST endpoint
     def do_POST(self):
