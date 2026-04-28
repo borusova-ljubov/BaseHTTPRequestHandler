@@ -119,7 +119,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             except ValueError:
                 self._send_response(400, {"error": "invalid status code"})
 
-        # 6./weather
+        # 6./weather-Belgrad
         elif path == "/weather":
             city = query.get("city", ["Belgrade"])[0]
 
@@ -144,11 +144,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                 data = response.json()
 
                 weather = data.get("current_weather", {})
+                temperature = weather.get("temperature")
 
                 result = {
                     "city": city,
-                    "temperature": weather.get("temperature"),
-                    "windspeed": weather.get("windspeed")
+                    "temperature": temperature,
+                    "windspeed": weather.get("windspeed"),
+                    "feeling": temperature - 2
                 }
 
                 self._send_response(200, result)
