@@ -4,6 +4,8 @@ import json
 import sys
 import requests
 from urllib.parse import urlparse, parse_qs
+from application_config import URL, PORT
+
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -133,7 +135,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 return
 
             try:
-                url = "https://api.open-meteo.com/v1/forecast"
+                url = URL
                 params = {
                     "latitude": lat,
                     "longitude": lon,
@@ -145,6 +147,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 weather = data.get("current_weather", {})
                 temperature = weather.get("temperature")
+
+                if temperature is None:
+                    feeling = None
+                else:
+                    feeling = temperature - 2
 
                 result = {
                     "city": city,
@@ -190,11 +197,8 @@ def run(server_class=HTTPServer, handler_class=RequestHandler, port=9990):
 
 
 if __name__ == "__main__":
-    port = 9990
-    if len(sys.argv) > 1:
-        port = int(sys.argv[1])
+    run(port=PORT)
 
-    run(port=port)
 
 
 
